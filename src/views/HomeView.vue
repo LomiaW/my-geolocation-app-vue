@@ -1,9 +1,12 @@
 <script setup>
-import TheWelcome from '../components/TheWelcome.vue'
+import getCurrentLocation from '../components/getCurrentLocation.vue';
+import getLocationByName from '../components/getLocationByName.vue';
 </script>
 
 <template>
-  <main>
-    <TheWelcome />
-  </main>
+   <div class="ui container">
+      <h1 class="ui centered header">My Location Search App</h1>
+      <getCurrentLocation />
+      <getLocationByName />
+   </div>
 </template>
