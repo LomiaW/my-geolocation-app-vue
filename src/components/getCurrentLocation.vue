@@ -46,11 +46,7 @@
                   .catch(error => {
                      console.log(error.message);
                   });
-                     }), 
-                     error => {
-                        this.error = error.message;
-                        console.log(error.message);
-                     }
+               });
             } else {
                this.error = error.message;
                console.log("Geolocation is not supported by this browser.");

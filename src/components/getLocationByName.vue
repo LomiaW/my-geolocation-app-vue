@@ -4,18 +4,24 @@
          <div class="column">
             <form class="ui segment large form">
                <div class="field">
-                  <div class="ui right icon input small" :class="{loading:spinner}">
-                     <input type="text" id="autocomplete" placeholder="Enter Location Name" v-model="location" @keyup.enter.native="onClickSearchLocation">
-                     <i class="dot circle link icon"></i>
+                  <div class="ui right icon input small">
+                     <input 
+                        type="text"
+                        id="searchTextField"
+                        ref="searchTextField" 
+                        placeholder="Enter Location Name" 
+                        v-model="location" 
+                        @keyup.enter.native="onClickSearchLocation">
                   </div>
                </div>
-               <button class="ui button" name="getLocation" @click="onClickSearchLocation">
+               <button class="ui button" id="searchButton" @click="onClickSearchLocation">
                   Search
                </button>
             </form>
          </div>
       </section>
-      <section id="map"></section>
+      <div class="ui divider"></div>
+      <section id="map" ref="map"></section>
    </div>
 </template>
 
@@ -28,72 +34,63 @@ export default {
    data() {
       return {
          location: "",
-         spinner: false
+         coords: {
+            lat: 0,
+            lng: 0
+         }
       }
    },
 
    mounted() {
-      let autocomplete = new google.maps.places.Autocomplete(
-         this.$refs['autocomplete'],
-         {
+      const searchBox = new google.maps.places.SearchBox(this.$refs['searchTextField'], {
             bounds: new google.maps.LatLngBounds(
-               new google.maps.LatLng(7.0711, 125.6128),
+               new google.maps.LatLng(43.8561002 -79.3370188),
             ),
          }
       );
 
-      autocomplete.addListener('place_changed', () => {
-         var place = autocomplete.getPlace();
-         console(place);
-         this.location = place.formatted_address;
-         this.showLocationOnMap(place.geometry.location.lat(), place.geometry.location.lng());
+      searchBox.addListener('places_changed', () => {
+         const places = searchBox.getPlaces();
+         this.coords.lat = places[0].geometry.location.lat();
+         this.coords.lng = places[0].geometry.location.lng();
+         this.location = places[0].formatted_address;
+         this.showLocationOnMap(this.coords.lat, this.coords.lng);
       });
    },
 
    methods: {
       onClickSearchLocation() {
-         this.spinner = true;
-
-         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition((position) => {
-               this.getLocationByName(position.coords.latitude, position.coords.longitude);
-
-               this.showLocationOnMap(position.coords.latitude, position.coords.longitude);
-            }),
-            (error) => {
-               this.spinner = false;
-               console.log(error.message);
-            }
-         } else {
-            this.spinner = false;
-            alert('Geolocation is not supported by this browser.');
-         }
-
+         const coords = this.getLocationCoordsByName(this.$refs['searchTextField'].value);
+         this.showLocationOnMap(coords.lat, coords.lng);
       },
 
-      getLocationByName(lat, lng) {
-         axios.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=" 
-                     + latitude + "," + longitude 
-                     + "&key=AIzaSyAAIeIPfYidBpqUke316LbK720IMd5m-sQ")
-         .then((response) => {
-            this.spinner = false;
+      getLocationCoordsByName(location) {
+         let coords = {
+            lat: 0,
+            lng: 0
+         };
 
-            if (response.data.error_message) {
-               console.log("Error: " + response.data.error_message);
-               return;
-            } else {
-               console.log(response.data.results[0].geometry);
-               this.location = response.data.results[0].formatted;
-            }
-         })
-         .catch((error) => {
-            this.spinner = false;
-            console.log(error);
-         });
+         axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${location}&key=AIzaSyAAIeIPfYidBpqUke316LbK720IMd5m-sQ`)
+            .then((response) => {
+               console.log(response.data);
+               if (response.data.status !== 'OK') {
+                  throw new Error('Unable to get coordinates for the location');
+               } else if (response.data.status === 'ZERO_RESULTS') {
+                  throw new Error('No results found for the location');
+               } else {
+                  console.log(response.data.results[0].geometry.location.lat);
+                  console.log(response.data.results[0].geometry.location.lng);
+               }               
+            })
+            .catch((error) => {
+               console.log(error);
+            });
+         
+         return coords;
       },
 
       showLocationOnMap(lat, lng) {
-         var map = new google.maps.Map(document.getElementById('map'), {
+         var map = new google.maps.Map(this.$refs['map'], {
             center: new google.maps.LatLng(lat, lng),
             zoom: 8,
             mapTypeId: google.maps.MapTypeId.ROADMAP
