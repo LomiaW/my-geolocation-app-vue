@@ -19,5 +19,5 @@ a single web app for searching locations using Vue 3 and JS
 
 ### Project Demo
 
-https://github.com/LomiaW/my-location-vue/assets/97309404/bef5ddc1-62eb-46d8-87cd-7ffc672e8a46
+https://github.com/LomiaW/my-location-app/assets/97309404/7f3c65b7-bd0d-461d-b6dc-979d074adcb8
 
