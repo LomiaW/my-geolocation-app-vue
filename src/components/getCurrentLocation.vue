@@ -13,7 +13,7 @@
 
 <script>
    import axios  from 'axios';
-
+   const GOOGLE_MAPS_API_KEY='';
    export default {
 
       data() {
@@ -32,7 +32,7 @@
 
                   axios.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=" 
                               + latitude + "," + longitude 
-                              + "&key=AIzaSyAAIeIPfYidBpqUke316LbK720IMd5m-sQ")
+                              + "&key=" + GOOGLE_MAPS_API_KEY)
                   .then(response => {
                      if (response.data.status === "OK") {
                         var city = response.data.results[0].address_components[3].long_name;
