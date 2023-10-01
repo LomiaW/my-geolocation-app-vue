@@ -67,7 +67,7 @@
 
 import axios  from 'axios';
 
-const GOOGLE_MAPS_API_KEY='AIzaSyAAIeIPfYidBpqUke316LbK720IMd5m-sQ'
+const GOOGLE_MAPS_API_KEY=''
 
 export default {
 
