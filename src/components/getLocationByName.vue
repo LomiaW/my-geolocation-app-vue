@@ -5,13 +5,8 @@
             <form class="ui segment large form">
                <div class="field">
                   <div class="ui right icon input small">
-                     <input 
-                        type="text"
-                        id="searchTextField"
-                        ref="searchTextField" 
-                        placeholder="Enter Location Name" 
-                        v-model="location" 
-                        @keyup.enter.native="onClickSearchLocation">
+                     <input type="text" id="searchTextField" ref="searchTextField" placeholder="Enter Location Name"
+                        v-model="location" @keyup.enter.native="onClickSearchLocation">
                   </div>
                </div>
                <button class="ui button" id="searchButton" @click="onClickSearchLocation">
@@ -29,7 +24,7 @@
          </div>
          <div class="ui divider"></div>
       </div>
-      
+
       <section id="map" ref="map"></section>
       <div class="ui divider"></div>
       <section id="table" ref="table">
@@ -65,9 +60,9 @@
 
 <script>
 
-import axios  from 'axios';
+import axios from 'axios';
 
-const GOOGLE_MAPS_API_KEY=''
+const GOOGLE_MAPS_API_KEY = import.meta.env.GOOGLE_MAPS_API_KEY;
 
 export default {
 
@@ -88,13 +83,13 @@ export default {
    mounted() {
       // Initialize the locations array with pagination
       var locations = JSON.parse(localStorage.getItem('locations'));
-      this.locations = locations? locations.slice((this.page - 1) * 10, this.page * 10) : [];
+      this.locations = locations ? locations.slice((this.page - 1) * 10, this.page * 10) : [];
 
       const searchBox = new google.maps.places.SearchBox(this.$refs['searchTextField'], {
-            bounds: new google.maps.LatLngBounds(
-               new google.maps.LatLng(43.8561002 -79.3370188),
-            ),
-         }
+         bounds: new google.maps.LatLngBounds(
+            new google.maps.LatLng(43.8561002 - 79.3370188),
+         ),
+      }
       );
 
       searchBox.addListener('places_changed', () => {
@@ -102,23 +97,23 @@ export default {
          this.coords.lat = places[0].geometry.location.lat();
          this.coords.lng = places[0].geometry.location.lng();
          this.location = places[0].formatted_address;
-         
+
          // Save the location in the local storage array for later use
          this.saveSearchedLocation(this.location);
 
          // Use the Time Zone API for the searched location
-         axios.get('https://maps.googleapis.com/maps/api/timezone/json?location=' 
-                     + this.coords.lat + ',' + this.coords.lng 
-                     + '&timestamp=' + Math.floor(Date.now() / 1000) 
-                     + '&key=' + GOOGLE_MAPS_API_KEY)
-         .then(response => {
-            console.log(response.data)
-            this.timeZone = response.data.timeZoneName;
-            this.localTime = new Date(Date.now() + response.data.rawOffset * 1000 + response.data.dstOffset * 1000).toLocaleString();
-         })
-         .catch(error => {
-            console.log(error)
-         })
+         axios.get('https://maps.googleapis.com/maps/api/timezone/json?location='
+            + this.coords.lat + ',' + this.coords.lng
+            + '&timestamp=' + Math.floor(Date.now() / 1000)
+            + '&key=' + GOOGLE_MAPS_API_KEY)
+            .then(response => {
+               console.log(response.data)
+               this.timeZone = response.data.timeZoneName;
+               this.localTime = new Date(Date.now() + response.data.rawOffset * 1000 + response.data.dstOffset * 1000).toLocaleString();
+            })
+            .catch(error => {
+               console.log(error)
+            })
 
          this.showLocationOnMap(this.coords.lat, this.coords.lng);
       });
@@ -130,27 +125,27 @@ export default {
          console.log(textInput)
          // Find Place From Text API
          // https://maps.googleapis.com/maps/api/place/textsearch/output?parameters
-         axios.get('https://maps.googleapis.com/maps/api/place/findplacefromtext/json&input='+ textInput +'&inputtype=textquery&key=${GOOGLE_MAPS_API_KEY}')
-         .then(response => {
-            console.log(response.data)
-            this.coords.lat = response.data.candidates[0].geometry.location.lat;
-            this.coords.lng = response.data.candidates[0].geometry.location.lng;
-            this.location = response.data.candidates[0].formatted_address;
+         axios.get('https://maps.googleapis.com/maps/api/place/findplacefromtext/json&input=' + textInput + '&inputtype=textquery&key=${GOOGLE_MAPS_API_KEY}')
+            .then(response => {
+               console.log(response.data)
+               this.coords.lat = response.data.candidates[0].geometry.location.lat;
+               this.coords.lng = response.data.candidates[0].geometry.location.lng;
+               this.location = response.data.candidates[0].formatted_address;
 
-            // Save the location in the local storage array for later use
-            this.saveSearchedLocation(this.location);
+               // Save the location in the local storage array for later use
+               this.saveSearchedLocation(this.location);
 
-            this.showLocationOnMap(this.coords.lat, this.coords.lng);
-         })
-         .catch(error => {
-            console.log(error)
-         })
+               this.showLocationOnMap(this.coords.lat, this.coords.lng);
+            })
+            .catch(error => {
+               console.log(error)
+            })
       },
 
       onClickClearButton() {
          var items = [];
          var checkboxes = document.getElementsByName('checkbox');
-         for (var i=0; i<checkboxes.length; i++) {
+         for (var i = 0; i < checkboxes.length; i++) {
             if (checkboxes[i].checked) {
                items.push(checkboxes[i].parentNode.parentNode.nextSibling.textContent);
             }
@@ -167,8 +162,7 @@ export default {
          } else {
             this.locations = locations.slice((this.page - 1) * 10, this.page * 10);
             this.page++;
-            // console.log(this.locations)
-         } 
+         }
       },
 
       showLocationOnMap(lat, lng) {
